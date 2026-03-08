@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Screen Mirror VR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1>Screen Mirror VR</h1>
+      <button id="btn-reload" type="button" class="btn-reload hidden" title="Recargar todo">Recargar</button>
+    </header>
+
+    <section id="choose-role" class="panel">
+      <p class="panel-title">Elige el modo:</p>
+      <div class="buttons">
+        <button id="btn-sender" type="button">Compartir pantalla (PC)</button>
+        <button id="btn-receiver" type="button">Ver pantalla (móvil)</button>
+      </div>
+    </section>
+
+    <section id="sender-panel" class="panel hidden">
+      <button id="btn-start-share" type="button" class="primary">Compartir pantalla</button>
+      <p id="sender-status" class="status"></p>
+      <div id="mobile-url-box" class="url-box hidden">
+        <label>En el móvil abre (misma red):</label>
+        <div class="url-row">
+          <input id="mobile-url" type="text" readonly>
+          <button id="btn-stop-share" type="button" class="danger">Dejar de compartir</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="receiver-panel" class="panel hidden">
+      <button id="btn-start-receive" type="button" class="primary">Ver pantalla</button>
+      <p id="receiver-status" class="status"></p>
+      <div id="video-container" class="video-container hidden">
+        <div id="view-normal" class="view-mode">
+          <video id="video-normal" autoplay playsinline muted></video>
+        </div>
+        <div id="view-sbs" class="view-mode hidden">
+          <div class="sbs-eye sbs-eye-left">
+            <video id="video-sbs-left" autoplay playsinline muted></video>
+          </div>
+          <div class="sbs-eye sbs-eye-right">
+            <video id="video-sbs-right" autoplay playsinline muted></video>
+          </div>
+        </div>
+        <div class="receiver-toolbar">
+          <div class="view-controls">
+            <label for="view-mode">Vista:</label>
+            <select id="view-mode">
+              <option value="normal">Normal</option>
+              <option value="sbs">VR (SBS)</option>
+            </select>
+          </div>
+          <button id="btn-fullscreen" type="button" class="btn-fullscreen" title="Pantalla completa">Pantalla completa</button>
+        </div>
+      </div>
+    </section>
+
+    <p id="error" class="error hidden"></p>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

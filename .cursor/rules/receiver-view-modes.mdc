@@ -1,0 +1,29 @@
+---
+description: Receiver UI and view modes (normal, SBS VR) for mobile
+globs: "**/*.tsx,**/*.vue,**/*.html,**/*.css"
+alwaysApply: false
+---
+
+# Receiver View Modes
+
+## Responsibilities
+
+- Receiver shows the single incoming WebRTC video stream. View mode only changes how that one stream is rendered (layout/CSS or canvas), not the stream itself.
+
+## Modes
+
+- **Normal**: One `<video>` (or equivalent) full-screen. No duplication.
+- **VR (SBS)**: Same video frame shown twice side-by-side (left eye / right eye). Implement by:
+  - Two elements (e.g. two `<video>` elements with same `srcObject`, or one video + canvas drawing left/right halves), or
+  - One video with CSS/container that duplicates the visual (e.g. two overlays showing the same source, each cropped to half width).
+- Optional: **Top-Bottom** variant; same idea, vertical split.
+
+## Implementation notes
+
+- Use a single `<video>` element when possible; duplicate the image in layout (CSS grid/flex, or canvas) rather than duplicating the element if it causes two decoders.
+- If using canvas for SBS: draw the same video frame to two destination regions (left half, right half); respect aspect ratio and avoid stretching.
+- Make the active mode (Normal / SBS / TB) user-selectable in the receiver UI (e.g. toggle or dropdown). Persist preference in `localStorage` if desired.
+
+## Mobile
+
+- Ensure full-screen and orientation handling work on mobile; prevent accidental zoom on double-tap when in VR layout.

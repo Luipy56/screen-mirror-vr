@@ -1,0 +1,31 @@
+---
+description: Architecture and tech stack for PC-to-mobile screen mirror with VR view modes
+alwaysApply: true
+---
+
+# Screen Mirror VR – Architecture
+
+## Stack
+
+- **Application**: Web app (PWA). One codebase; runs in browser on PC (sender) and mobile (receiver). Prioritize Windows; must also work on Linux.
+- **Capture (PC)**: `getDisplayMedia()` (Screen Capture API). No native desktop app required.
+- **Transport**: WebRTC (RTCPeerConnection). Video/audio sent P2P for low latency.
+- **Signaling**: WebSocket server (Node.js or similar) **always run locally** by the user (e.g. `npm start`). Only for SDP/ICE exchange; no media through server. Do not introduce any dependency on remote backends or hosted services so that any user can run the app locally without depending on third parties.
+- **Connectivity**: Wireless (WiFi) and wired (USB tethering). Same WebRTC flow; "wired" = phone gets IP via tethering, then same URL.
+
+## Roles
+
+- **Sender**: Browser on Windows/Linux PC. Captures screen via `getDisplayMedia()`, creates offer, sends stream over WebRTC.
+- **Receiver**: Browser (or PWA) on mobile. Receives stream, displays with configurable view mode (normal / SBS for VR).
+
+## View Modes (receiver only)
+
+- **Normal**: Single full-screen video.
+- **VR (SBS)**: Same frame drawn twice (left half / right half) for cardboard-style VR; optional Top-Bottom. No second stream; single stream, duplicated in layout.
+
+## Constraints
+
+- **No remote server**: The app must run entirely from a local process. Any user can clone, install, and run without depending on external services. STUN/TURN may be configured by the user (e.g. env) but must not be required by default.
+- Test on Windows first; ensure Linux (Chrome/Firefox) works.
+- Do not depend on OS-specific APIs for capture; use only web APIs.
+- Prefer HTTPS or localhost for `getDisplayMedia()`; document any TLS requirements.

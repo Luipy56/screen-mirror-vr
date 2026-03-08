@@ -1,0 +1,33 @@
+---
+description: WebRTC capture, peer connection, and signaling conventions
+globs: "**/*.ts,**/*.js"
+alwaysApply: false
+---
+
+# WebRTC and Signaling
+
+## Capture (sender)
+
+- Use `navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })` after a user gesture. Never call without user interaction.
+- Stop tracks when ending session: iterate `getTracks()` and call `stop()` to release capture.
+
+```typescript
+// ✅ GOOD – stop on disconnect
+peerConnection.getSenders().forEach(s => s.track?.stop());
+```
+
+## PeerConnection
+
+- Add the display stream with `addTrack(track, stream)` (one track per stream). Do not use `addStream` (deprecated).
+- Handle ICE candidate gathering and send candidates over the signaling channel; add remote candidates with `addIceCandidate()`.
+- Use STUN (e.g. `stun:stun.l.google.com:19302`). Add TURN only if NAT/firewall requires it.
+
+## Signaling
+
+- Exchange only signaling data over WebSocket (offer, answer, ICE candidates). No media over the server.
+- Serialize SDP and ICE candidates as JSON. Recreate `RTCSessionDescription` / `RTCIceCandidate` on receive before passing to `setRemoteDescription` / `addIceCandidate`.
+- Handle `connectionstatechange` and surface "disconnected" / "failed" to the UI; do not leave the user with a frozen screen.
+
+## Errors
+
+- Catch `getDisplayMedia` rejections (user cancel, permission denied) and show a clear message. Do not swallow errors.
