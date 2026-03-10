@@ -104,7 +104,19 @@
     senderIceQueue = [];
     els.senderStatus.textContent = 'Pidiendo permiso para capturar pantalla…';
     try {
-      localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      localStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 60, max: 60 },
+          cursor: 'always',
+        },
+        audio: false,
+      });
+      var videoTrack = localStream.getVideoTracks()[0];
+      if (videoTrack && 'contentHint' in videoTrack) {
+        videoTrack.contentHint = 'detail';
+      }
     } catch (e) {
       els.senderStatus.textContent = '';
       if (e.name === 'NotAllowedError') {
@@ -200,8 +212,29 @@
     const pc = new RTCPeerConnection({ iceServers: getIceServers() });
 
     localStream.getTracks().forEach(function (track) {
-      pc.addTrack(track, localStream);
+      var s = pc.addTrack(track, localStream);
+      if (track.kind === 'video') {
+        var params = s.getParameters();
+        if (!params.encodings || params.encodings.length === 0) {
+          params.encodings = [{}];
+        }
+        params.encodings[0].maxBitrate = 8_000_000;
+        params.encodings[0].maxFramerate = 60;
+        params.encodings[0].degradationPreference = 'maintain-resolution';
+        s.setParameters(params);
+      }
     });
+
+    var vt = pc.getTransceivers().find(function (t) {
+      return t.sender.track && t.sender.track.kind === 'video';
+    });
+    if (vt && vt.setCodecPreferences) {
+      var codecs = (RTCRtpReceiver.getCapabilities && RTCRtpReceiver.getCapabilities('video') || {}).codecs || [];
+      var preferred = codecs.filter(function (c) { return c.mimeType === 'video/VP9'; })
+        .concat(codecs.filter(function (c) { return c.mimeType === 'video/H264'; }))
+        .concat(codecs.filter(function (c) { return c.mimeType !== 'video/VP9' && c.mimeType !== 'video/H264'; }));
+      vt.setCodecPreferences(preferred);
+    }
 
     pc.onicecandidate = function (ev) {
       if (ev.candidate && ws && ws.readyState === WebSocket.OPEN) {

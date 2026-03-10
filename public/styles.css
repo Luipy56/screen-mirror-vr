@@ -299,7 +299,6 @@ button.danger:hover {
   width: 100%;
   height: auto;
   max-height: 70vh;
-  vertical-align: middle;
 }
 
 /* SBS: solo cuando está activo */
@@ -312,6 +311,9 @@ button.danger:hover {
   width: 50%;
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #view-sbs:not(.hidden) .sbs-eye video {
@@ -400,7 +402,7 @@ button.danger:hover {
   object-position: center !important;
 }
 
-/* 5. SBS fullscreen: wrapper por ojo con overflow hidden + posición absoluta */
+/* 5. SBS fullscreen: .sbs-video-wrap al 95% y centrado */
 .video-container:fullscreen #view-sbs:not(.hidden),
 .video-container:-webkit-full-screen #view-sbs:not(.hidden) {
   display: flex !important;
@@ -424,7 +426,8 @@ button.danger:hover {
   box-sizing: content-box !important;
   display: block !important;
   position: absolute !important;
-  top: 0 !important;
+  top: 50% !important;
+  left: 50% !important;
   height: 100% !important;
   width: auto !important;
   max-width: none !important;
@@ -432,18 +435,17 @@ button.danger:hover {
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
+  transform: translate(-50%, -50%) scale(0.70) !important;
 }
 
-.video-container:fullscreen .sbs-eye-left video,
-.video-container:-webkit-full-screen .sbs-eye-left video {
-  left: 65% !important;
-  transform: translateX(-50%) !important;
+.video-container:fullscreen #view-sbs:not(.hidden) .sbs-eye-left video,
+.video-container:-webkit-full-screen #view-sbs:not(.hidden) .sbs-eye-left video {
+  left: 60% !important;
 }
 
-.video-container:fullscreen .sbs-eye-right video,
-.video-container:-webkit-full-screen .sbs-eye-right video {
-  left: 35% !important;
-  transform: translateX(-50%) !important;
+.video-container:fullscreen #view-sbs:not(.hidden) .sbs-eye-right video,
+.video-container:-webkit-full-screen #view-sbs:not(.hidden) .sbs-eye-right video {
+  left: 40% !important;
 }
 
 .video-container .btn-fullscreen {
