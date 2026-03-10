@@ -1,71 +1,81 @@
 # Screen Mirror VR
 
-App web para duplicar la pantalla del PC al móvil. En el receptor (móvil) puedes elegir cómo se ve: pantalla completa o vista dividida **VR (SBS)** para usar el móvil con unas gafas tipo cardboard.
+Web app to mirror your PC screen to your phone. On the receiver (mobile), choose **full screen** or **VR (SBS)** split view for cardboard-style headsets.
 
-**100% local**: no depende de ningún servidor remoto. Todo corre en tu máquina.
+**Fully local** — no remote servers. Everything runs on your machine.
 
-## Requisitos
+## Features
 
-- **Node.js** 18 o superior
-- Navegador con soporte para **getDisplayMedia** y **WebRTC** (Chrome, Edge, Firefox; en Windows y Linux)
-- PC y móvil en la **misma red** (WiFi o móvil con USB tethering al PC)
+- **Screen capture** via `getDisplayMedia()` (Screen Capture API)
+- **WebRTC** peer-to-peer video and audio
+- **Local signaling** over WebSocket (Node.js server you run with `npm start`)
+- **View modes** on mobile: Normal or VR Side-by-Side (SBS)
+- **WiFi or USB tethering** — same flow; phone gets an IP and uses the URL shown in the app
 
-## Cómo ejecutar
+## Requirements
 
-1. Clona el repo e instala dependencias:
+- **Node.js** 18+
+- Browser with **getDisplayMedia** and **WebRTC** (Chrome, Edge, Firefox on Windows or Linux)
+- PC and phone on the **same network** (WiFi or USB tethering)
+
+## Quick start
+
+1. Clone and install:
 
    ```bash
+   git clone <repo-url>
+   cd screen-mirror-vr
    npm install
    ```
 
-2. Arranca el servidor en tu PC:
+2. Start the server on your PC:
 
    ```bash
    npm start
    ```
 
-3. En el **PC**: abre en el navegador `http://localhost:3000`, pulsa **Compartir pantalla (PC)** y luego **Compartir pantalla**. Acepta el permiso de captura. Verás una URL.
+3. **On the PC:** Open `http://localhost:3000`, click **Share screen (PC)** then **Share screen**. Accept the capture permission. The app will show a URL.
 
-4. En el **móvil** (misma WiFi, o conectado por USB con tethering): abre en el navegador la URL que muestra la app (ej. `http://192.168.1.x:3000`), pulsa **Ver pantalla (móvil)** y luego **Ver pantalla**.
+4. **On the phone** (same WiFi, or USB tethering): Open that URL in the browser (e.g. `http://192.168.1.x:3000`), click **View screen (mobile)** then **View screen**.
 
-5. La señalización va por el WebSocket del servidor que corre en tu PC; el vídeo y el audio van **P2P** entre navegador del PC y del móvil. En el móvil puedes cambiar la vista a **Normal** o **VR (SBS)**.
+5. Signaling goes through the WebSocket server on your PC; video and audio are **P2P** between the two browsers. On the phone you can switch between **Normal** and **VR (SBS)** view.
 
-No hay cuentas ni backend en la nube; el único proceso es el que tú ejecutas con `npm start`.
+No accounts or cloud backend — the only process is the one you run with `npm start`.
 
-## Conexión del móvil
+## Connecting the phone
 
-- **Wireless**: PC y móvil en el mismo WiFi. En la app del PC se muestra una URL con la IP local (ej. `http://192.168.1.x:3000`). Ábrela en el navegador del móvil.
-- **Wired**: Conecta el móvil al PC por USB y activa **Compartir Internet / USB tethering**. El móvil obtendrá IP de la red del PC; usa la URL que muestra la app en el PC.
+- **Wireless:** PC and phone on the same WiFi. The app on the PC shows a URL with your local IP (e.g. `http://192.168.1.x:3000`). Open it in the phone’s browser.
+- **Wired:** Connect the phone to the PC via USB and enable **USB tethering**. The phone gets an IP on the PC’s network; use the URL shown in the app on the PC.
 
-## STUN / TURN (opcional)
+## STUN / TURN (optional)
 
-Por defecto no se usa ningún servidor STUN ni TURN. La app puede funcionar en la misma red (PC y móvil en el mismo WiFi) si el navegador ofrece candidatos ICE alcanzables.
+By default no STUN or TURN server is used. The app can work on the same LAN (PC and phone on the same WiFi) if the browser provides reachable ICE candidates.
 
-Si **no se ve la pantalla** en el receptor (móvil o segunda pestaña), prueba:
+If **the receiver doesn’t show the screen** (phone or second tab):
 
-1. **Abrir la consola del navegador** (F12 → Consola) en el emisor y en el receptor. Deberías ver mensajes como `[Sender] Offer sent`, `[Receiver] Offer received`, `[Receiver] Answer sent`, `[Sender] Answer received` y `Connection state: connected`. Si el estado se queda en `checking` o pasa a `failed`, suele ser un problema de red/NAT.
-2. **Usar STUN** para que WebRTC descubra direcciones alcanzables. Reinicia el servidor con:
+1. **Open the browser console** (F12 → Console) on both sender and receiver. You should see messages like `[Sender] Offer sent`, `[Receiver] Offer received`, `[Receiver] Answer sent`, `[Sender] Answer received`, and `Connection state: connected`. If the state stays at `checking` or goes to `failed`, it’s usually a network/NAT issue.
+2. **Use STUN** so WebRTC can discover reachable addresses. Restart the server with:
 
-```bash
-STUN_URL=stun:stun.l.google.com:19302 npm start
-```
+   ```bash
+   STUN_URL=stun:stun.l.google.com:19302 npm start
+   ```
 
-Para no depender de servicios externos, puedes montar tu propio STUN (p. ej. [coturn](https://github.com/coturn/coturn)) en tu red y usar:
+   To avoid external services, you can run your own STUN server (e.g. [coturn](https://github.com/coturn/coturn)) on your network:
 
-```bash
-STUN_URL=stun:192.168.1.10:3478 npm start
-```
+   ```bash
+   STUN_URL=stun:192.168.1.10:3478 npm start
+   ```
 
-El tráfico de vídeo/audio sigue siendo P2P; STUN solo se usa para descubrir direcciones.
+   Video and audio remain P2P; STUN is only used for address discovery.
 
-## Puerto
+## Port
 
-Por defecto el servidor usa el puerto **3000**. Para usar otro:
+The server uses port **3000** by default. To use another:
 
 ```bash
 PORT=8080 npm start
 ```
 
-## Licencia
+## License
 
 MIT
